@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Assinatura - NerdResolve</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+
+  <style>
+    :root {
+      --green-main: #629676;
+      --green-dark: #4a7560;
+      --green-light: #94aca1;
+      --green-bg: #96aa9e;
+    }
+    body { font-family: 'Open Sans', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #96aa9e 0%, #94aca1 100%); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: linear-gradient(135deg, #629676 0%, #6F9685 100%);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    }
+    .btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,.15); }
+    .btn-primary:active { transform: translateY(0);    box-shadow: 0 4px 6px rgba(0,0,0,.1);  }
+
+    /* ── Step indicator ── */
+    .step-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .step-active   { background: var(--green-main); color: #fff; }
+    .step-done     { background: var(--green-dark); color: #fff; }
+    .step-inactive { background: #e5e7eb; color: #9ca3af; }
+    .step-line     { flex: 1; height: 2px; background: #e5e7eb; margin: 0 8px; transition: background 0.3s; }
+    .step-line-done{ background: var(--green-main); }
+
+    /* ── Segment cards ── */
+    .seg-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      overflow: hidden;
+      background: #fff;
+    }
+    .seg-card:hover  { border-color: var(--green-main); box-shadow: 0 4px 16px rgba(98,150,118,.2); transform: translateY(-2px); }
+    .seg-card.selected {
+      border-color: var(--green-main);
+      box-shadow: 0 4px 20px rgba(98,150,118,.35);
+      background: #f0f7f3;
+    }
+    .seg-card.selected .seg-check { opacity: 1; }
+    .seg-check { opacity: 0; transition: opacity 0.2s; }
+
+    .seg-preview {
+      width: 100%; height: 90px;
+      object-fit: cover; object-position: left top;
+      border-bottom: 1px solid #f0f0f0;
+      background: #f9fafb;
+    }
+
+    /* ── Form inputs ── */
+    .form-input {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid #d1d5db; border-radius: 8px;
+      font-size: 14px; color: #374151;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--green-main);
+      box-shadow: 0 0 0 3px rgba(98,150,118,.15);
+    }
+    .form-label { font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px; display: block; }
+
+    /* ── Custom dropdown ── */
+    .custom-select { position: relative; }
+    .select-selected {
+      background: #fff; border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 10px 36px 10px 14px; cursor: pointer; user-select: none;
+      font-size: 14px; color: #374151; position: relative;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .select-selected.placeholder { color: #9ca3af; }
+    .select-selected:hover { border-color: var(--green-main); }
+    .select-selected.open {
+      border-color: var(--green-main);
+      box-shadow: 0 0 0 3px rgba(98,150,118,.15);
+    }
+    .select-arrow {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+      transition: transform 0.2s;
+      color: #9ca3af; font-size: 12px;
+    }
+    .select-selected.open .select-arrow { transform: translateY(-50%) rotate(180deg); }
+    .select-items {
+      position: absolute; background: #fff; top: calc(100% + 4px);
+      left: 0; right: 0; z-index: 100;
+      border: 1px solid #d1d5db; border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12);
+      max-height: 220px; overflow-y: auto;
+      opacity: 0; visibility: hidden; transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+    .select-items.show { opacity: 1; visibility: visible; transform: translateY(0); }
+    .select-items .group-header {
+      padding: 8px 14px 4px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: #9ca3af; pointer-events: none;
+    }
+    .select-items .option {
+      padding: 9px 14px; font-size: 13px; cursor: pointer;
+      color: #374151; transition: background 0.15s;
+    }
+    .select-items .option:hover { background: #f0f7f3; color: var(--green-main); }
+    .select-items .option.selected { background: var(--green-main); color: #fff; }
+
+    /* ── Slide animations ── */
+    .slide-enter  { animation: slideIn .35s ease forwards; }
+    .slide-leave  { animation: slideOut .25s ease forwards; }
+    @keyframes slideIn  { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes slideOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-30px); } }
+
+    /* ── Loading overlay ── */
+    #loadingOverlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,.85);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 999; opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    #loadingOverlay.show { opacity: 1; pointer-events: all; }
+    .spinner {
+      width: 48px; height: 48px; border: 4px solid #e5e7eb;
+      border-top-color: var(--green-main); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 767px) {
+      .mobile-image { height: 130px; object-position: center; }
+    }
+  </style>
+</head>
+
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner mb-4"></div>
+    <p class="text-gray-600 font-medium">Gerando sua assinatura…</p>
+  </div>
+
+  <div class="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden">
+
+    <!-- Mobile banner -->
+    <div class="md:hidden w-full">
+      <img src="/assets/banner2.jpg" alt="NerdResolve" class="w-full h-full object-cover mobile-image">
+    </div>
+
+    <div class="flex flex-col md:flex-row min-h-[520px]">
+
+      <!-- ══ LEFT PANEL ══ -->
+      <div class="w-full md:w-[55%] p-6 md:p-10 flex flex-col">
+
+        <!-- Logo + title -->
+        <div class="text-center mb-6">
+          <img src="/assets/GrupoNerdResolveLogo.png" alt="NerdResolve Logo" class="mx-auto h-10 md:h-14">
+          <h1 class="text-xl font-semibold text-gray-600 mt-3">Gerador de Assinaturas</h1>
+        </div>
+
+        <!-- Step indicator -->
+        <div class="flex items-center mb-8 px-2">
+          <div class="step-circle step-active" id="stepCircle1">1</div>
+          <div class="step-line" id="stepLine1"></div>
+          <div class="step-circle step-inactive" id="stepCircle2">2</div>
+        </div>
+
+        <!-- ══ STEP 1: Segment selection ══ -->
+        <div id="step1" class="flex-1 flex flex-col slide-enter">
+          <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Selecione seu segmento</p>
+
+          <div class="grid grid-cols-2 gap-3 flex-1">
+
+            <div class="seg-card" data-segment="corporativo" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg1.png" class="seg-preview" alt="NerdResolve">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">NerdResolve</p>
+                  <p class="text-xs text-gray-400">Corporativo</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+            <div class="seg-card" data-segment="Servicos" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg2.png" class="seg-preview" alt="Servicos">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Servicos</p>
+                  <p class="text-xs text-gray-400">Ambiental</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+            <div class="seg-card" data-segment="offshore" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg3.png" class="seg-preview" alt="Offshore">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Offshore</p>
+                  <p class="text-xs text-gray-400">Operações</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+            <div class="seg-card" data-segment="bunker" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg4.png" class="seg-preview" alt="Bunker / Estaleiro">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Bunker / Estaleiro</p>
+                  <p class="text-xs text-gray-400">Operações</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-6 text-center">
+            <button onclick="goToStep2()" class="btn-primary text-white px-10 py-3 rounded-full font-semibold disabled:opacity-40" id="btnNext" disabled>
+              Próximo <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══ STEP 2: Form ══ -->
+        <div id="step2" class="hidden flex-1 flex flex-col">
+
+          <button onclick="backToStep1()" class="text-sm text-gray-400 hover:text-gray-600 flex items-center mb-5 w-fit transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Voltar
+          </button>
+
+          <div class="space-y-4 flex-1">
+            <!-- Name -->
+            <div>
+              <label class="form-label">Nome completo <span class="text-red-400">*</span></label>
+              <input id="signName" class="form-input" type="text" placeholder="Ex: João da Silva" maxlength="50">
+            </div>
+
+            <!-- Sector dropdown -->
+            <div>
+              <label class="form-label">Setor <span class="text-red-400">*</span></label>
+              <div class="custom-select" id="sectorSelect">
+                <div class="select-selected placeholder" id="sectorDisplay" onclick="toggleDropdown()">
+                  Selecione seu setor
+                  <span class="select-arrow"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="select-items" id="sectorItems"></div>
+              </div>
+              <input type="hidden" id="signSector">
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="form-label">E-mail corporativo <span class="text-red-400">*</span></label>
+              <input id="signEmail" class="form-input" type="email" placeholder="nome@NerdResolve.com.br">
+            </div>
+
+            <!-- Phone -->
+            <div>
+              <label class="form-label">Telefone <span class="text-gray-300 font-normal">(opcional)</span></label>
+              <input id="signPhone" class="form-input" type="tel" placeholder="+55 (21) 99999-9999">
+            </div>
+          </div>
+
+          <div class="mt-6 text-center">
+            <button onclick="trySubmit()" class="btn-primary text-white px-10 py-3 rounded-full font-semibold">
+              <i class="fas fa-download mr-2"></i> Gerar Assinatura
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ RIGHT PANEL ══ -->
+      <div class="hidden md:flex md:w-[45%] bg-gray-50 relative overflow-hidden flex-col">
+        <img src="/assets/banner2.jpg" alt="NerdResolve" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-8 text-white text-center">
+          <h2 class="text-2xl font-bold mb-1">NerdResolve</h2>
+          <p class="text-sm opacity-80">Navegamos com segurança, responsabilidade e respeito à vida.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Sector data ──
+    const SECTORS = {
+      'CORPORATIVO': [
+        'Comunicação & Marketing','Recursos Humanos','Fiscal','Célula Fiscal',
+        'Gestão de Materiais','Gestão de Fornecedores','Comércio Exterior','Suprimentos',
+        'Tesouraria','Contas a pagar','Contas a receber','Controladoria','Contabilidade',
+        'Financeiro','Comercial','Gestão Econômica de Contratos','Jurídico','QSMS',
+        'Administrativo','Saúde Ocupacional','Tecnologia da Informação',
+        'Treinamentos Obrigatórios','Logística de Tripulação','Projetos'
+      ],
+      'Servicos': [
+        'Operação Ambiental','Manutenção Ambiental','Administrativo Ambiental',
+        'QSMS Ambiental','Comercial Ambiental','Área Técnica Ambiental','Logística Ambiental'
+      ],
+      'OFFSHORE': [
+        'Operação Offshore','Manutenção Offshore','Administrativo Offshore',
+        'QSMS Offshore','Comercial Offshore','Docagem','DP'
+      ],
+      'BUNKER': [
+        'Operação Bunker','Manutenção Bunker','Administrativo Bunker',
+        'QSMS Bunker','Comercial Bunker'
+      ],
+      'ESTALEIRO': [
+        'Comercial Estaleiro','Manutenção Estaleiro','PCP','Produção','Engenharia'
+      ]
+    };
+
+    let selectedSegment = null;
+
+    // ── Build sector dropdown ──
+    const buildDropdown = () => {
+      const container = document.getElementById('sectorItems');
+      container.innerHTML = '';
+      for (const [group, options] of Object.entries(SECTORS)) {
+        const header = document.createElement('div');
+        header.className = 'group-header';
+        header.textContent = group;
+        container.appendChild(header);
+        options.forEach(opt => {
+          const div = document.createElement('div');
+          div.className = 'option';
+          div.textContent = opt;
+          div.addEventListener('click', () => selectSector(opt, div));
+          container.appendChild(div);
+        });
+      }
+    };
+
+    const toggleDropdown = () => {
+      const items = document.getElementById('sectorItems');
+      const disp  = document.getElementById('sectorDisplay');
+      items.classList.toggle('show');
+      disp.classList.toggle('open');
+    };
+
+    const selectSector = (value, el) => {
+      document.getElementById('signSector').value = value;
+      const disp = document.getElementById('sectorDisplay');
+      disp.textContent = value;
+      disp.classList.remove('placeholder', 'open');
+
+      // Re-add arrow
+      const arrow = document.createElement('span');
+      arrow.className = 'select-arrow';
+      arrow.innerHTML = '<i class="fas fa-chevron-down"></i>';
+      disp.appendChild(arrow);
+
+      document.querySelectorAll('#sectorItems .option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('sectorItems').classList.remove('show');
+    };
+
+    document.addEventListener('click', e => {
+      const select = document.getElementById('sectorSelect');
+      if (!select.contains(e.target)) {
+        document.getElementById('sectorItems').classList.remove('show');
+        document.getElementById('sectorDisplay').classList.remove('open');
+      }
+    });
+
+    // ── Step 1: Segment ──
+    const selectSegment = (card) => {
+      document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedSegment = card.dataset.segment;
+      document.getElementById('btnNext').disabled = false;
+    };
+
+    const goToStep2 = () => {
+      if (!selectedSegment) return;
+
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+
+      s1.classList.add('slide-leave');
+      setTimeout(() => {
+        s1.classList.add('hidden');
+        s1.classList.remove('slide-leave');
+        s2.classList.remove('hidden');
+        s2.classList.add('slide-enter');
+        setTimeout(() => s2.classList.remove('slide-enter'), 400);
+      }, 250);
+
+      // Update step circles
+      document.getElementById('stepCircle1').className = 'step-circle step-done';
+      document.getElementById('stepCircle1').innerHTML = '<i class="fas fa-check text-xs"></i>';
+      document.getElementById('stepLine1').classList.add('step-line-done');
+      document.getElementById('stepCircle2').className = 'step-circle step-active';
+    };
+
+    const backToStep1 = () => {
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+
+      s2.classList.add('hidden');
+      s1.classList.remove('hidden');
+      s1.classList.add('slide-enter');
+      setTimeout(() => s1.classList.remove('slide-enter'), 400);
+
+      document.getElementById('stepCircle1').className = 'step-circle step-active';
+      document.getElementById('stepCircle1').textContent = '1';
+      document.getElementById('stepLine1').classList.remove('step-line-done');
+      document.getElementById('stepCircle2').className = 'step-circle step-inactive';
+    };
+
+    // ── Step 2: Form submission ──
+    const validateForm = () => {
+      const name   = document.getElementById('signName').value.trim();
+      const sector = document.getElementById('signSector').value.trim();
+      const email  = document.getElementById('signEmail').value.trim();
+
+      if (!name || !sector || !email) { alert('Preencha todos os campos obrigatórios.'); return false; }
+      if (name.length > 50)           { alert('O nome deve ter até 50 caracteres.');    return false; }
+      if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(name)) { alert('O nome contém caracteres inválidos.'); return false; }
+      if (!email.includes('@'))       { alert('E-mail inválido.');                       return false; }
+      const phone = document.getElementById('signPhone').value.trim();
+      if (phone && !/^\+55\s\(\d{2}\)\s\d{4,5}-\d{4}$/.test(phone))
+        { alert('Formato de telefone inválido.\nEx: +55 (21) 99999-9999'); return false; }
+      return true;
+    };
+
+    const trySubmit = async () => {
+      if (!validateForm()) return;
+
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('show');
+
+      try {
+        const response = await fetch('/signaturegenerator', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            signSegment: selectedSegment,
+            signName:    document.getElementById('signName').value,
+            signSector:  document.getElementById('signSector').value,
+            signEmail:   document.getElementById('signEmail').value,
+            signPhone:   document.getElementById('signPhone').value
+          })
+        });
+
+        if (!response.ok) {
+          const err = await response.text();
+          alert('Erro: ' + err);
+          return;
+        }
+
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'assinatura_NerdResolve.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+      } catch (err) {
+        alert('Erro na solicitação. Tente novamente.');
+      } finally {
+        overlay.classList.remove('show');
+      }
+    };
+
+    // ── Phone mask ──
+    const formatPhone = (e) => {
+      let v = e.target.value.replace(/\D/g, '');
+      if (!v.startsWith('55')) v = '55' + v;
+      v = v.substring(0, 13);
+      let fmt = '+55';
+      if (v.length > 2)  fmt += ` (${v.substring(2, 4)}`;
+      if (v.length > 4)  fmt += `) ${v.substring(4, 9)}`;
+      if (v.length > 9)  fmt += `-${v.substring(9, 13)}`;
+      else if (v.length > 4) fmt += ')';
+      e.target.value = fmt;
+    };
+
+    // ── Enter key navigation ──
+    const setupKeyNav = () => {
+      const fields = ['signName', 'signEmail', 'signPhone'];
+      fields.forEach((id, i) => {
+        document.getElementById(id).addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (i < fields.length - 1) document.getElementById(fields[i + 1]).focus();
+            else trySubmit();
+          }
+        });
+      });
+    };
+
+    // ── Init ──
+    document.addEventListener('DOMContentLoaded', () => {
+      buildDropdown();
+      setupKeyNav();
+      document.getElementById('signPhone').addEventListener('input', formatPhone);
+    });
+  </script>
+</body>
+</html>
