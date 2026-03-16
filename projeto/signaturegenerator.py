@@ -12,12 +12,12 @@ SEGMENT_TEMPLATE = {
 }
 
 POSITIONS = {
-    'name':   {'x': 87,  'y': 444, 'cover': (79,  430, 1000, 502)},
-    'sector': {'x': 89,  'y': 538, 'cover': (81,  525, 1000, 602)},
-    'email':  {'x': 90,  'y': 658, 'cover': (82,  645, 1060, 800)},
-    'phone':  {'x': 91,  'y': 743},
-    'instagram': {'x': 87,  'y': 780},
-    'linkedin': {'x': 180, 'y': 780},
+    'name':      {'x': 87,   'y': 444, 'cover': (79,  430, 1000, 502)},
+    'sector':    {'x': 89,   'y': 538, 'cover': (81,  525, 1000, 602)},
+    'email':     {'x': 90,   'y': 658, 'cover': (82,  645, 1060, 800)},
+    'phone':     {'x': 91,   'y': 743},
+    'instagram': {'x': 1760, 'y': 672},
+    'linkedin':  {'x': 1760, 'y': 725},
 }
 
 COLORS = {
@@ -119,18 +119,20 @@ def main():
         if phone and phone.strip():
             draw.text((p['phone']['x'], p['phone']['y']), phone.strip(), font=font_body, fill=COLORS['body'])
 
-        # Paste social media icons
-        try:
-            instagram_path = os.path.join(assets_dir, '3.png')
-            linkedin_path = os.path.join(assets_dir, '4.png')
-            if os.path.exists(instagram_path):
-                ig_icon = Image.open(instagram_path).convert('RGBA')
-                image.paste(ig_icon, (p['instagram']['x'], p['instagram']['y']), ig_icon)
-            if os.path.exists(linkedin_path):
-                li_icon = Image.open(linkedin_path).convert('RGBA')
-                image.paste(li_icon, (p['linkedin']['x'], p['linkedin']['y']), li_icon)
-        except:
-            pass
+        # Paste social media icons (small, aligned to right side)
+        def paste_icon(name, pos):
+            try:
+                icon_path = os.path.join(assets_dir, name)
+                if not os.path.exists(icon_path):
+                    return
+                icon = Image.open(icon_path).convert('RGBA')
+                icon = icon.resize((32, 32), Image.LANCZOS)
+                image.paste(icon, pos, icon)
+            except Exception:
+                pass
+
+        paste_icon('3.png', (p['instagram']['x'], p['instagram']['y']))
+        paste_icon('4.png', (p['linkedin']['x'],  p['linkedin']['y']))
 
         sys.stdout.buffer.write(image_to_bytes(image))
 
