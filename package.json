@@ -1,0 +1,16 @@
+{
+  "name": "mailsignaturegen",
+  "version": "2.0.0",
+  "description": "Gerador de assinaturas NerdResolve com seleção de segmento",
+  "main": "projeto/server.js",
+  "scripts": {
+    "start": "node projeto/server.js"
+  },
+  "dependencies": {
+    "express": "^4.22.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
