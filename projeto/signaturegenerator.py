@@ -16,9 +16,9 @@ POSITIONS = {
     'sector':    {'x': 89,   'y': 538, 'cover': (81,  525, 1000, 602)},
     'email':     {'x': 90,   'y': 658, 'cover': (82,  645, 1060, 800)},
     'phone':     {'x': 91,   'y': 743},
-    # moved closer to the social handles on the template
-    'instagram': {'x': 1450, 'y': 672},
-    'linkedin':  {'x': 1450, 'y': 725},
+    # reposition icons to the left of the social handles
+    'instagram': {'x': 1400, 'y': 680},
+    'linkedin':  {'x': 1400, 'y': 735},
 }
 
 COLORS = {
@@ -127,7 +127,7 @@ def main():
                 if not os.path.exists(icon_path):
                     return
                 icon = Image.open(icon_path).convert('RGBA')
-                icon = icon.resize((32, 32), Image.LANCZOS)
+                icon = icon.resize((24, 24), Image.LANCZOS)
                 image.paste(icon, pos, icon)
             except Exception:
                 pass
