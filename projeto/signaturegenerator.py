@@ -7,11 +7,9 @@ from PIL import Image, ImageDraw, ImageFont
 # Segment key -> template image (pre-rendered PNG with logo already baked in)
 SEGMENT_TEMPLATE = {
     'corporativo': 'template_seg1.png',
-    'Servicos': 'template_seg4.png',
+    'Servicos': 'template_seg2.png',
     'offshore': 'template_seg3.png',
-    'bunker': 'template_seg3.png',
-    'Operacoes': 'template_seg2.png',
-    'estaleiro': 'template_seg3.png',
+    'bunker': 'template_seg4.png',
 }
 
 # Pixel positions measured from 2493x924 template PNGs (300 dpi render)
