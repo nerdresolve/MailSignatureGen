@@ -6,7 +6,7 @@ const path     = require('path');
 const app    = express();
 const upload = multer();
 const PORT   = 3000;
-const HOST   = 'localhost';
+const HOST   = '0.0.0.0';
 
 const VALID_SEGMENTS = [
   'corporativo',
@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.post('/signaturegenerator', upload.none(), (req, res) => {
+app.post('/signaturegenerator', (req, res) => {
   const { signSegment, signName, signSector, signEmail, signPhone } = req.body;
 
   const validation = validateInputs(signSegment, signName, signSector, signEmail, signPhone || '');
