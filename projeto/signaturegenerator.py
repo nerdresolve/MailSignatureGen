@@ -4,7 +4,6 @@ import io
 import platform
 from PIL import Image, ImageDraw, ImageFont
 
-# Segment key -> template image (pre-rendered PNG with logo already baked in)
 SEGMENT_TEMPLATE = {
     'Operacoes': 'template_seg1.png',
     'Servicos': 'template_seg2.png',
@@ -12,26 +11,22 @@ SEGMENT_TEMPLATE = {
     'estaleiro': 'template_seg4.png',
 }
 
-# Pixel positions measured from 2493x924 template PNGs (300 dpi render)
 POSITIONS = {
     'name':   {'x': 87,  'y': 444, 'cover': (79,  430, 1000, 502)},
     'sector': {'x': 89,  'y': 538, 'cover': (81,  525, 1000, 602)},
     'email':  {'x': 90,  'y': 658, 'cover': (82,  645, 1060, 800)},
     'phone':  {'x': 91,  'y': 743},
-    'website':  {'x': 87,  'y': 780},
-    'instagram': {'x': 87,  'y': 815},
-    'linkedin':  {'x': 87,  'y': 850},
+    'instagram': {'x': 87,  'y': 780},
+    'linkedin': {'x': 180, 'y': 780},
 }
 
 COLORS = {
-    'name': (0,   123, 77),   # #007B4D green
-    'body': (109, 109, 109),  # #6D6D6D gray
-    'link': (98,  167, 133),  # #62A785 green for links
+    'name': (0,   123, 77),
+    'body': (109, 109, 109),
 }
 
 FONT_SIZE_NAME = 48
 FONT_SIZE_BODY = 50
-FONT_SIZE_SOCIAL = 32
 
 
 def get_font_path():
@@ -124,18 +119,18 @@ def main():
         if phone and phone.strip():
             draw.text((p['phone']['x'], p['phone']['y']), phone.strip(), font=font_body, fill=COLORS['body'])
 
-        # Draw social media at the bottom
-        if font_path:
-            font_social = ImageFont.truetype(font_path, FONT_SIZE_SOCIAL)
-        else:
-            font_social = ImageFont.load_default()
-
-        # Website
-        draw.text((p['website']['x'], p['website']['y']), '🌐 NerdResolve.com.br', font=font_social, fill=COLORS['link'])
-        # Instagram
-        draw.text((p['instagram']['x'], p['instagram']['y']), '📷 @grupoNerdResolve', font=font_social, fill=COLORS['link'])
-        # LinkedIn
-        draw.text((p['linkedin']['x'], p['linkedin']['y']), '💼 /company/grupoNerdResolve', font=font_social, fill=COLORS['link'])
+        # Paste social media icons
+        try:
+            instagram_path = os.path.join(assets_dir, '3.png')
+            linkedin_path = os.path.join(assets_dir, '4.png')
+            if os.path.exists(instagram_path):
+                ig_icon = Image.open(instagram_path).convert('RGBA')
+                image.paste(ig_icon, (p['instagram']['x'], p['instagram']['y']), ig_icon)
+            if os.path.exists(linkedin_path):
+                li_icon = Image.open(linkedin_path).convert('RGBA')
+                image.paste(li_icon, (p['linkedin']['x'], p['linkedin']['y']), li_icon)
+        except:
+            pass
 
         sys.stdout.buffer.write(image_to_bytes(image))
 
