@@ -18,15 +18,20 @@ POSITIONS = {
     'sector': {'x': 89,  'y': 538, 'cover': (81,  525, 1000, 602)},
     'email':  {'x': 90,  'y': 658, 'cover': (82,  645, 1060, 800)},
     'phone':  {'x': 91,  'y': 743},
+    'website':  {'x': 87,  'y': 780},
+    'instagram': {'x': 87,  'y': 815},
+    'linkedin':  {'x': 87,  'y': 850},
 }
 
 COLORS = {
     'name': (0,   123, 77),   # #007B4D green
     'body': (109, 109, 109),  # #6D6D6D gray
+    'link': (98,  167, 133),  # #62A785 green for links
 }
 
 FONT_SIZE_NAME = 48
 FONT_SIZE_BODY = 50
+FONT_SIZE_SOCIAL = 32
 
 
 def get_font_path():
@@ -118,6 +123,19 @@ def main():
         draw.text((p['email']['x'],  p['email']['y']),  email,         font=font_body, fill=COLORS['body'])
         if phone and phone.strip():
             draw.text((p['phone']['x'], p['phone']['y']), phone.strip(), font=font_body, fill=COLORS['body'])
+
+        # Draw social media at the bottom
+        if font_path:
+            font_social = ImageFont.truetype(font_path, FONT_SIZE_SOCIAL)
+        else:
+            font_social = ImageFont.load_default()
+
+        # Website
+        draw.text((p['website']['x'], p['website']['y']), '🌐 NerdResolve.com.br', font=font_social, fill=COLORS['link'])
+        # Instagram
+        draw.text((p['instagram']['x'], p['instagram']['y']), '📷 @grupoNerdResolve', font=font_social, fill=COLORS['link'])
+        # LinkedIn
+        draw.text((p['linkedin']['x'], p['linkedin']['y']), '💼 /company/grupoNerdResolve', font=font_social, fill=COLORS['link'])
 
         sys.stdout.buffer.write(image_to_bytes(image))
 
