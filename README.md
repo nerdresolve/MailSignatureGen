@@ -1,5 +1,7 @@
 # Gerador de Assinaturas NerdResolve
 
+Gerador de assinaturas de e-mail para os segmentos do NerdResolve.
+
 ## Requisitos
 
 - **Node.js** 16+
@@ -31,3 +33,12 @@ Acesse: http://localhost:3000
 ## Dependências
 
 Apenas **Pillow** (Python) + **Express** (Node.js). Não requer LibreOffice.
+
+## Segmentos disponíveis
+
+| Segmento | Slide |
+|----------|-------|
+| NerdResolve / Corporativo | 1 |
+| Servicos | 2 |
+| Offshore | 3 |
+| Bunker / Estaleiro | 4 |

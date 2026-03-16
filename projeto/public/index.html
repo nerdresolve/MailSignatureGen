@@ -190,6 +190,7 @@
 
           <div class="grid grid-cols-2 gap-3 flex-1">
 
+<<<<<<< HEAD
             <div class="seg-card" data-segment="offshore" onclick="selectSegment(this)">
               <img src="/assets/preview_seg1.png" class="seg-preview" alt="NerdResolve Offshore">
               <div class="p-3 flex items-center justify-between">
@@ -218,17 +219,55 @@
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Estaleiro São Miguel</p>
                   <p class="text-xs text-gray-400">NerdResolve</p>
+=======
+            <div class="seg-card" data-segment="corporativo" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg1.png" class="seg-preview" alt="NerdResolve">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">NerdResolve</p>
+                  <p class="text-xs text-gray-400">Corporativo</p>
+>>>>>>> 9ed8038559f57deb5e9d22058b3a34e04103df22
                 </div>
                 <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
               </div>
             </div>
 
             <div class="seg-card" data-segment="Servicos" onclick="selectSegment(this)">
+<<<<<<< HEAD
               <img src="/assets/preview_seg4.png" class="seg-preview" alt="Servicos">
               <div class="p-3 flex items-center justify-between">
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Servicos</p>
                   <p class="text-xs text-gray-400">NerdResolve</p>
+=======
+              <img src="/assets/preview_seg2.png" class="seg-preview" alt="Servicos">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Servicos</p>
+                  <p class="text-xs text-gray-400">Ambiental</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+            <div class="seg-card" data-segment="offshore" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg3.png" class="seg-preview" alt="Offshore">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Offshore</p>
+                  <p class="text-xs text-gray-400">Operações</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
+            <div class="seg-card" data-segment="bunker" onclick="selectSegment(this)">
+              <img src="/assets/preview_seg4.png" class="seg-preview" alt="Bunker / Estaleiro">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Bunker / Estaleiro</p>
+                  <p class="text-xs text-gray-400">Operações</p>
+>>>>>>> 9ed8038559f57deb5e9d22058b3a34e04103df22
                 </div>
                 <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
               </div>
@@ -308,6 +347,7 @@
   <script>
     // ── Sector data ──
     const SECTORS = {
+<<<<<<< HEAD
       'NerdResolve OFFSHORE': [
         'Operação Offshore','Manutenção Offshore','Administrativo Offshore',
         'QSMS Offshore','Comercial Offshore','Docagem','DP',
@@ -320,10 +360,33 @@
       'ESTALEIRO SÃO MIGUEL': [
         'Comercial Estaleiro','Manutenção Estaleiro','PCP','Produção','Engenharia',
         'Administrativo Estaleiro','QSMS Estaleiro'
+=======
+      'CORPORATIVO': [
+        'Comunicação & Marketing','Recursos Humanos','Fiscal','Célula Fiscal',
+        'Gestão de Materiais','Gestão de Fornecedores','Comércio Exterior','Suprimentos',
+        'Tesouraria','Contas a pagar','Contas a receber','Controladoria','Contabilidade',
+        'Financeiro','Comercial','Gestão Econômica de Contratos','Jurídico','QSMS',
+        'Administrativo','Saúde Ocupacional','Tecnologia da Informação',
+        'Treinamentos Obrigatórios','Logística de Tripulação','Projetos'
+>>>>>>> 9ed8038559f57deb5e9d22058b3a34e04103df22
       ],
       'Servicos': [
         'Operação Ambiental','Manutenção Ambiental','Administrativo Ambiental',
         'QSMS Ambiental','Comercial Ambiental','Área Técnica Ambiental','Logística Ambiental'
+<<<<<<< HEAD
+=======
+      ],
+      'OFFSHORE': [
+        'Operação Offshore','Manutenção Offshore','Administrativo Offshore',
+        'QSMS Offshore','Comercial Offshore','Docagem','DP'
+      ],
+      'BUNKER': [
+        'Operação Bunker','Manutenção Bunker','Administrativo Bunker',
+        'QSMS Bunker','Comercial Bunker'
+      ],
+      'ESTALEIRO': [
+        'Comercial Estaleiro','Manutenção Estaleiro','PCP','Produção','Engenharia'
+>>>>>>> 9ed8038559f57deb5e9d22058b3a34e04103df22
       ]
     };
 

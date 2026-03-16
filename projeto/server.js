@@ -8,7 +8,14 @@ const upload = multer();
 const PORT   = 3000;
 const HOST   = 'localhost';
 
-const VALID_SEGMENTS = ['offshore', 'Operacoes', 'estaleiro', 'Servicos'];
+const VALID_SEGMENTS = [
+  'corporativo',
+  'Servicos',
+  'offshore',
+  'bunker',
+  'Operacoes',
+  'estaleiro'
+];
 
 const VALIDATION_RULES = {
   name:   { maxLength: 50, pattern: /^[a-zA-ZÀ-ÿ\s]+$/ },
@@ -48,6 +55,8 @@ app.post('/signaturegenerator', upload.none(), (req, res) => {
   if (!validation.valid) return res.status(400).send(validation.error);
 
   const pythonPath = path.resolve(__dirname, 'signaturegenerator.py');
+  if (!pythonPath.startsWith(path.resolve(__dirname)))
+    return res.status(400).send('Caminho inválido');
 
   // Try python3 first, fall back to python (Windows)
   const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
@@ -89,3 +98,4 @@ app.post('/signaturegenerator', upload.none(), (req, res) => {
 app.listen(PORT, HOST, () => {
   console.log(`Servidor rodando em http://${HOST}:${PORT}`);
 });
+
