@@ -16,8 +16,9 @@ POSITIONS = {
     'sector':    {'x': 89,   'y': 538, 'cover': (81,  525, 1000, 602)},
     'email':     {'x': 90,   'y': 658, 'cover': (82,  645, 1060, 800)},
     'phone':     {'x': 91,   'y': 743},
-    'instagram': {'x': 1760, 'y': 672},
-    'linkedin':  {'x': 1760, 'y': 725},
+    # moved closer to the social handles on the template
+    'instagram': {'x': 1450, 'y': 672},
+    'linkedin':  {'x': 1450, 'y': 725},
 }
 
 COLORS = {
