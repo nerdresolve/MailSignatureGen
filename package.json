@@ -1,9 +1,10 @@
 {
   "name": "mailsignaturegen",
   "version": "2.0.0",
-  "description": "Gerador de assinaturas NerdResolve com seleção de segmento",
+  "description": "Gerador de assinaturas NerdResolve com selecao de segmento",
   "main": "projeto/server.js",
   "scripts": {
+    "init": "npm install && python -m pip install -r requirements.txt",
     "start": "node projeto/server.js"
   },
   "dependencies": {

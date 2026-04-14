@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
@@ -21,7 +21,7 @@
     body { font-family: 'Open Sans', sans-serif; }
     .gradient-bg { background: linear-gradient(135deg, #96aa9e 0%, #94aca1 100%); }
 
-    /* ── Buttons ── */
+    /* â”€â”€ Buttons â”€â”€ */
     .btn-primary {
       background: linear-gradient(135deg, #629676 0%, #6F9685 100%);
       transition: all 0.3s ease;
@@ -30,7 +30,7 @@
     .btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,.15); }
     .btn-primary:active { transform: translateY(0);    box-shadow: 0 4px 6px rgba(0,0,0,.1);  }
 
-    /* ── Step indicator ── */
+    /* â”€â”€ Step indicator â”€â”€ */
     .step-circle {
       width: 32px; height: 32px;
       border-radius: 50%;
@@ -44,7 +44,7 @@
     .step-line     { flex: 1; height: 2px; background: #e5e7eb; margin: 0 8px; transition: background 0.3s; }
     .step-line-done{ background: var(--green-main); }
 
-    /* ── Segment cards ── */
+    /* â”€â”€ Segment cards â”€â”€ */
     .seg-card {
       border: 2px solid #e5e7eb;
       border-radius: 16px;
@@ -69,7 +69,7 @@
       background: #f9fafb;
     }
 
-    /* ── Form inputs ── */
+    /* â”€â”€ Form inputs â”€â”€ */
     .form-input {
       width: 100%; padding: 10px 14px;
       border: 1px solid #d1d5db; border-radius: 8px;
@@ -82,7 +82,7 @@
     }
     .form-label { font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 4px; display: block; }
 
-    /* ── Custom dropdown ── */
+    /* â”€â”€ Custom dropdown â”€â”€ */
     .custom-select { position: relative; }
     .select-selected {
       background: #fff; border: 1px solid #d1d5db; border-radius: 8px;
@@ -125,13 +125,13 @@
     .select-items .option:hover { background: #f0f7f3; color: var(--green-main); }
     .select-items .option.selected { background: var(--green-main); color: #fff; }
 
-    /* ── Slide animations ── */
+    /* â”€â”€ Slide animations â”€â”€ */
     .slide-enter  { animation: slideIn .35s ease forwards; }
     .slide-leave  { animation: slideOut .25s ease forwards; }
     @keyframes slideIn  { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
     @keyframes slideOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(-30px); } }
 
-    /* ── Loading overlay ── */
+    /* â”€â”€ Loading overlay â”€â”€ */
     #loadingOverlay {
       position: fixed; inset: 0; background: rgba(255,255,255,.85);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -156,7 +156,7 @@
   <!-- Loading overlay -->
   <div id="loadingOverlay">
     <div class="spinner mb-4"></div>
-    <p class="text-gray-600 font-medium">Gerando sua assinatura…</p>
+    <p class="text-gray-600 font-medium">Gerando sua assinatura...</p>
   </div>
 
   <div class="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden">
@@ -168,7 +168,7 @@
 
     <div class="flex flex-col md:flex-row min-h-[520px]">
 
-      <!-- ══ LEFT PANEL ══ -->
+      <!-- â•â• LEFT PANEL â•â• -->
       <div class="w-full md:w-[55%] p-6 md:p-10 flex flex-col">
 
         <!-- Logo + title -->
@@ -184,14 +184,25 @@
           <div class="step-circle step-inactive" id="stepCircle2">2</div>
         </div>
 
-        <!-- ══ STEP 1: Segment selection ══ -->
+        <!-- â•â• STEP 1: Segment selection â•â• -->
         <div id="step1" class="flex-1 flex flex-col slide-enter">
           <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Selecione seu segmento</p>
 
           <div class="grid grid-cols-2 gap-3 flex-1">
 
+            <div class="seg-card" data-segment="corporativo" onclick="selectSegment(this)">
+              <img src="/assets/GrupoNerdResolve.PNG" class="seg-preview" alt="NerdResolve">
+              <div class="p-3 flex items-center justify-between">
+                <div>
+                  <p class="font-semibold text-gray-700 text-sm">Corporativo</p>
+                  <p class="text-xs text-gray-400">NerdResolve</p>
+                </div>
+                <i class="fas fa-check-circle text-green-600 seg-check text-lg"></i>
+              </div>
+            </div>
+
             <div class="seg-card" data-segment="offshore" onclick="selectSegment(this)">
-              <img src="/assets/preview_seg1.png" class="seg-preview" alt="Offshore">
+              <img src="/assets/NerdResolveOffshore.PNG" class="seg-preview" alt="Offshore">
               <div class="p-3 flex items-center justify-between">
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Offshore</p>
@@ -202,7 +213,7 @@
             </div>
 
             <div class="seg-card" data-segment="Operacoes" onclick="selectSegment(this)">
-              <img src="/assets/preview_seg2.png" class="seg-preview" alt="Operacoes">
+              <img src="/assets/NerdResolveOperacoes.PNG" class="seg-preview" alt="Operacoes">
               <div class="p-3 flex items-center justify-between">
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Operacoes</p>
@@ -213,7 +224,7 @@
             </div>
 
             <div class="seg-card" data-segment="estaleiro" onclick="selectSegment(this)">
-              <img src="/assets/preview_seg3.png" class="seg-preview" alt="Estaleiro São Miguel">
+              <img src="/assets/NerdResolveEstaleiro.PNG" class="seg-preview" alt="Estaleiro São Miguel">
               <div class="p-3 flex items-center justify-between">
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Estaleiro São Miguel</p>
@@ -224,7 +235,7 @@
             </div>
 
             <div class="seg-card" data-segment="Servicos" onclick="selectSegment(this)">
-              <img src="/assets/preview_seg4.png" class="seg-preview" alt="Servicos">
+              <img src="/assets/NerdResolveServicos.PNG" class="seg-preview" alt="Servicos">
               <div class="p-3 flex items-center justify-between">
                 <div>
                   <p class="font-semibold text-gray-700 text-sm">Servicos</p>
@@ -243,7 +254,7 @@
           </div>
         </div>
 
-        <!-- ══ STEP 2: Form ══ -->
+        <!-- â•â• STEP 2: Form â•â• -->
         <div id="step2" class="hidden flex-1 flex flex-col">
 
           <button onclick="backToStep1()" class="text-sm text-gray-400 hover:text-gray-600 flex items-center mb-5 w-fit transition-colors">
@@ -279,7 +290,8 @@
             <!-- Phone -->
             <div>
               <label class="form-label">Telefone <span class="text-gray-300 font-normal">(opcional)</span></label>
-              <input id="signPhone" class="form-input" type="tel" placeholder="+55 (21) 99999-9999">
+              <input id="signPhone" class="form-input" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="+55 (21) 99999-9999">
+              <p class="text-xs text-gray-400 mt-2">Digite com DDD. A assinatura sempre será gerada com +55 na frente.</p>
             </div>
           </div>
 
@@ -292,7 +304,7 @@
 
       </div>
 
-      <!-- ══ RIGHT PANEL ══ -->
+      <!-- â•â• RIGHT PANEL â•â• -->
       <div class="hidden md:flex md:w-[45%] bg-gray-50 relative overflow-hidden flex-col">
         <img src="/assets/banner2.jpg" alt="NerdResolve" class="w-full h-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -302,9 +314,10 @@
   </div>
 
   <script>
-    // ── Sector data ──
+    // â”€â”€ Sector data â”€â”€
     const SECTORS = {
       'CORPORATIVO': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Comunicação & Marketing','Recursos Humanos','Fiscal','Célula Fiscal',
         'Gestão de Materiais','Gestão de Fornecedores','Comércio Exterior','Suprimentos',
         'Tesouraria','Contas a pagar','Contas a receber','Controladoria','Contabilidade',
@@ -313,22 +326,27 @@
         'Treinamentos Obrigatórios','Logística de Tripulação','Projetos'
       ],
       'Servicos': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Operação Ambiental','Manutenção Ambiental','Administrativo Ambiental',
         'QSMS Ambiental','Comercial Ambiental','Área Técnica Ambiental','Logística Ambiental'
       ],
       'OFFSHORE': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Operação Offshore','Manutenção Offshore','Administrativo Offshore',
         'QSMS Offshore','Comercial Offshore','Docagem','DP'
       ],
       'BUNKER': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Operação Bunker','Manutenção Bunker','Administrativo Bunker',
         'QSMS Bunker','Comercial Bunker'
       ],
       'Operacoes': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Operação','Manutenção','Administrativo','QSMS','Comercial',
         'Financeiro','Recursos Humanos','Tecnologia da Informação'
       ],
       'ESTALEIRO SÃO MIGUEL': [
+        'Diretor','Gerente','Coordenador','Supervisor',
         'Comercial Estaleiro','Manutenção Estaleiro','PCP','Produção','Engenharia',
         'Administrativo Estaleiro','QSMS Estaleiro'
       ]
@@ -336,7 +354,7 @@
 
     let selectedSegment = null;
 
-    // ── Build sector dropdown ──
+    // â”€â”€ Build sector dropdown â”€â”€
     const buildDropdown = () => {
       const container = document.getElementById('sectorItems');
       container.innerHTML = '';
@@ -387,7 +405,7 @@
       }
     });
 
-    // ── Step 1: Segment ──
+    // â”€â”€ Step 1: Segment â”€â”€
     const selectSegment = (card) => {
       document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
@@ -432,20 +450,37 @@
       document.getElementById('stepCircle2').className = 'step-circle step-inactive';
     };
 
-    // ── Step 2: Form submission ──
+    // â”€â”€ Step 2: Form submission â”€â”€
+    const normalizeTextInput = (value) => value.normalize('NFC').trim();
+
     const validateForm = () => {
-      const name   = document.getElementById('signName').value.trim();
-      const sector = document.getElementById('signSector').value.trim();
+      const name   = normalizeTextInput(document.getElementById('signName').value);
+      const sector = normalizeTextInput(document.getElementById('signSector').value);
       const email  = document.getElementById('signEmail').value.trim();
 
       if (!name || !sector || !email) { alert('Preencha todos os campos obrigatórios.'); return false; }
       if (name.length > 50)           { alert('O nome deve ter até 50 caracteres.');    return false; }
-      if (!/^[a-zA-ZÀ-ÿ\s]+$/.test(name)) { alert('O nome contém caracteres inválidos.'); return false; }
+      if (!/^[\p{L}\p{M}\s'-]+$/u.test(name)) { alert('O nome contém caracteres inválidos.'); return false; }
       if (!email.includes('@'))       { alert('E-mail inválido.');                       return false; }
       const phone = document.getElementById('signPhone').value.trim();
-      if (phone && !/^\+55\s\(\d{2}\)\s\d{4,5}-\d{4}$/.test(phone))
+      const normalizedPhone = normalizePhone(phone);
+      if (phone && !normalizedPhone)
         { alert('Formato de telefone inválido.\nEx: +55 (21) 99999-9999'); return false; }
       return true;
+    };
+
+    const normalizePhone = (value) => {
+      const digits = value.replace(/\D/g, '');
+      const localDigits = digits.startsWith('55') ? digits.slice(2) : digits;
+
+      if (!localDigits) return '';
+      if (localDigits.length < 10 || localDigits.length > 11) return null;
+
+      const ddd = localDigits.slice(0, 2);
+      const number = localDigits.slice(2);
+      const prefixLength = number.length === 9 ? 5 : 4;
+
+      return `+55 (${ddd}) ${number.slice(0, prefixLength)}-${number.slice(prefixLength)}`;
     };
 
     const trySubmit = async () => {
@@ -453,6 +488,7 @@
 
       const overlay = document.getElementById('loadingOverlay');
       overlay.classList.add('show');
+      const normalizedPhone = normalizePhone(document.getElementById('signPhone').value);
 
       try {
         const response = await fetch('/signaturegenerator', {
@@ -460,10 +496,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             signSegment: selectedSegment,
-            signName:    document.getElementById('signName').value,
-            signSector:  document.getElementById('signSector').value,
+            signName:    normalizeTextInput(document.getElementById('signName').value),
+            signSector:  normalizeTextInput(document.getElementById('signSector').value),
             signEmail:   document.getElementById('signEmail').value,
-            signPhone:   document.getElementById('signPhone').value
+            signPhone:   normalizedPhone || ''
           })
         });
 
@@ -488,20 +524,38 @@
       }
     };
 
-    // ── Phone mask ──
+    // â”€â”€ Phone mask â”€â”€
     const formatPhone = (e) => {
-      let v = e.target.value.replace(/\D/g, '');
-      if (!v.startsWith('55')) v = '55' + v;
-      v = v.substring(0, 13);
-      let fmt = '+55';
-      if (v.length > 2)  fmt += ` (${v.substring(2, 4)}`;
-      if (v.length > 4)  fmt += `) ${v.substring(4, 9)}`;
-      if (v.length > 9)  fmt += `-${v.substring(9, 13)}`;
-      else if (v.length > 4) fmt += ')';
-      e.target.value = fmt;
+      const digits = e.target.value.replace(/\D/g, '');
+      const localDigits = digits.startsWith('55') ? digits.slice(2) : digits;
+      const trimmedDigits = localDigits.slice(0, 11);
+
+      if (!trimmedDigits) {
+        e.target.value = '';
+        return;
+      }
+
+      if (trimmedDigits.length <= 2) {
+        e.target.value = `(${trimmedDigits}`;
+        return;
+      }
+
+      const ddd = trimmedDigits.slice(0, 2);
+      const number = trimmedDigits.slice(2);
+
+      if (number.length <= 4) {
+        e.target.value = `(${ddd}) ${number}`;
+        return;
+      }
+
+      const prefixLength = number.length > 8 ? 5 : 4;
+      const prefix = number.slice(0, prefixLength);
+      const suffix = number.slice(prefixLength);
+
+      e.target.value = suffix ? `(${ddd}) ${prefix}-${suffix}` : `(${ddd}) ${prefix}`;
     };
 
-    // ── Enter key navigation ──
+    // â”€â”€ Enter key navigation â”€â”€
     const setupKeyNav = () => {
       const fields = ['signName', 'signEmail', 'signPhone'];
       fields.forEach((id, i) => {
@@ -515,12 +569,20 @@
       });
     };
 
-    // ── Init ──
+    // â”€â”€ Init â”€â”€
     document.addEventListener('DOMContentLoaded', () => {
       buildDropdown();
       setupKeyNav();
       document.getElementById('signPhone').addEventListener('input', formatPhone);
     });
+
+    window.selectSegment = selectSegment;
+    window.goToStep2 = goToStep2;
+    window.backToStep1 = backToStep1;
+    window.trySubmit = trySubmit;
+    window.toggleDropdown = toggleDropdown;
   </script>
 </body>
 </html>
+
+
