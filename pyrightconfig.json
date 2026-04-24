@@ -1,0 +1,8 @@
+{
+  "pythonVersion": "3.12",
+  "pythonPath": "C:/Users/matheus.vianna/AppData/Local/Microsoft/WindowsApps/PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0/python.exe",
+  "venvPath": ".",
+  "include": ["projeto"],
+  "exclude": ["node_modules", "**/__pycache__"],
+  "typeCheckingMode": "basic"
+}

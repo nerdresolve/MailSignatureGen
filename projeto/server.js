@@ -6,53 +6,70 @@ const app = express();
 const PORT = 3000;
 const HOST = '0.0.0.0';
 
-const VALID_SEGMENTS = [
-  'corporativo',
-  'Operacoes',
-  'Servicos',
-  'offshore',
-  'estaleiro'
-];
+const VALID_SEGMENTS = ['corporativo', 'Operacoes', 'Servicos', 'offshore', 'estaleiro'];
 
-const VALIDATION_RULES = {
-  name: { maxLength: 50, pattern: /^[\p{L}\p{M}\s'-]+$/u },
+const FIELD_RULES = {
+  name:   { maxLength: 50, pattern: /^[\p{L}\p{M}\s'-]+$/u },
   sector: { pattern: /^[\p{L}\p{M}\p{N}@._\s&()/-]+$/u },
-  email: { pattern: /^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
-  phone: { pattern: /^\+55\s\(\d{2}\)\s\d{4,5}-\d{4}$/ }
+  email:  { pattern: /^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
+  phone:  { pattern: /^\+55\s\(\d{2}\)\s\d{4,5}-\d{4}$/ },
 };
 
-const normalizeTextInput = (value) => value.normalize('NFC').trim();
+const PYTHON_SCRIPT_PATH = path.resolve(__dirname, 'signaturegenerator.py');
+const PYTHON_CMD = process.platform === 'win32' ? 'python' : 'python3';
 
-const validateInputs = (segment, name, sector, email, phone) => {
-  const normalizedName = normalizeTextInput(name);
-  const normalizedSector = normalizeTextInput(sector);
-  const normalizedEmail = email.trim();
+const normalize = (value) => value.normalize('NFC').trim();
 
-  if (!segment || !VALID_SEGMENTS.includes(segment.toLowerCase())) {
-    return { valid: false, error: 'Segmento invalido' };
-  }
+const validateFields = ({ segment, name, sector, email, phone }) => {
+  if (!segment || !VALID_SEGMENTS.includes(segment.toLowerCase()))
+    return 'Segmento inválido.';
 
-  if (!normalizedName || !normalizedSector || !normalizedEmail) {
-    return { valid: false, error: 'Campos obrigatorios vazios' };
-  }
+  if (!name || !sector || !email)
+    return 'Campos obrigatórios não preenchidos.';
 
-  if (normalizedName.length > VALIDATION_RULES.name.maxLength || !VALIDATION_RULES.name.pattern.test(normalizedName)) {
-    return { valid: false, error: 'Nome invalido' };
-  }
+  if (name.length > FIELD_RULES.name.maxLength || !FIELD_RULES.name.pattern.test(name))
+    return 'Nome inválido.';
 
-  if (!VALIDATION_RULES.sector.pattern.test(normalizedSector)) {
-    return { valid: false, error: 'Setor invalido' };
-  }
+  if (!FIELD_RULES.sector.pattern.test(sector))
+    return 'Setor inválido.';
 
-  if (!VALIDATION_RULES.email.pattern.test(normalizedEmail)) {
-    return { valid: false, error: 'Email invalido' };
-  }
+  if (!FIELD_RULES.email.pattern.test(email))
+    return 'E-mail inválido.';
 
-  if (phone && !VALIDATION_RULES.phone.pattern.test(phone)) {
-    return { valid: false, error: 'Telefone invalido' };
-  }
+  if (phone && !FIELD_RULES.phone.pattern.test(phone))
+    return 'Telefone inválido.';
 
-  return { valid: true };
+  return null;
+};
+
+const generateSignatureImage = ({ segment, name, sector, email, phone }, onSuccess, onError) => {
+  const process = spawn(PYTHON_CMD, [
+    PYTHON_SCRIPT_PATH,
+    segment.toLowerCase(),
+    name,
+    sector,
+    email,
+    phone || '',
+  ]);
+
+  let imageChunks = [];
+  let stderrOutput = '';
+
+  process.stdout.on('data', (chunk) => imageChunks.push(chunk));
+  process.stderr.on('data', (chunk) => { stderrOutput += chunk.toString(); });
+  process.on('error', onError);
+
+  process.on('close', (exitCode) => {
+    if (stderrOutput) console.error('[python]', stderrOutput.trim());
+
+    const imageBuffer = Buffer.concat(imageChunks);
+
+    if (exitCode === 0 && imageBuffer.length > 0) {
+      onSuccess(imageBuffer);
+    } else {
+      onError(new Error(`Python encerrou com código ${exitCode}`));
+    }
+  });
 };
 
 app.use(express.urlencoded({ extended: true }));
@@ -64,57 +81,28 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signaturegenerator', (req, res) => {
-  const { signSegment, signName, signSector, signEmail, signPhone } = req.body;
-  const normalizedName = normalizeTextInput(signName);
-  const normalizedSector = normalizeTextInput(signSector);
-  const normalizedEmail = signEmail.trim();
+  const fields = {
+    segment: req.body.signSegment,
+    name:    normalize(req.body.signName    ?? ''),
+    sector:  normalize(req.body.signSector  ?? ''),
+    email:   (req.body.signEmail ?? '').trim(),
+    phone:   (req.body.signPhone ?? '').trim(),
+  };
 
-  const validation = validateInputs(signSegment, normalizedName, normalizedSector, normalizedEmail, signPhone || '');
-  if (!validation.valid) {
-    return res.status(400).send(validation.error);
-  }
+  const validationError = validateFields(fields);
+  if (validationError) return res.status(400).send(validationError);
 
-  const pythonPath = path.resolve(__dirname, 'signaturegenerator.py');
-  if (!pythonPath.startsWith(path.resolve(__dirname))) {
-    return res.status(400).send('Caminho invalido');
-  }
-
-  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
-  const pythonProcess = spawn(pythonCmd, [
-    pythonPath,
-    signSegment.toLowerCase(),
-    normalizedName,
-    normalizedSector,
-    normalizedEmail,
-    signPhone || ''
-  ]);
-
-  let imageBuffer = Buffer.alloc(0);
-  let hasError = false;
-
-  pythonProcess.stdout.on('data', (data) => {
-    imageBuffer = Buffer.concat([imageBuffer, data]);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error('Python stderr:', data.toString());
-    hasError = true;
-  });
-
-  pythonProcess.on('error', () => res.status(500).send('Erro interno ao gerar assinatura.'));
-
-  pythonProcess.on('close', (code) => {
-    if (code === 0 && !hasError) {
+  generateSignatureImage(
+    fields,
+    (imageBuffer) => {
       res.setHeader('Content-Disposition', 'attachment; filename="assinatura_NerdResolve.png"');
       res.setHeader('Content-Type', 'image/png');
       res.send(imageBuffer);
-      return;
-    }
-
-    res.status(500).send('Erro ao gerar imagem da assinatura.');
-  });
+    },
+    () => res.status(500).send('Erro ao gerar assinatura.'),
+  );
 });
 
 app.listen(PORT, HOST, () => {
-  console.log(`Servidor rodando em http://${HOST}:${PORT}`);
+  console.log(`Servidor rodando em http://localhost:${PORT}`);
 });

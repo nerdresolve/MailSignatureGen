@@ -6,136 +6,137 @@ import unicodedata
 
 from PIL import Image, ImageDraw, ImageFont
 
-SEGMENT_TEMPLATE = {
-    'corporativo': 'GrupoNerdResolve.PNG',
-    'Operacoes': 'NerdResolveOperacoes.PNG',
-    'Servicos': 'NerdResolveServicos.PNG',
-    'offshore': 'NerdResolveOffshore.PNG',
-    'estaleiro': 'NerdResolveEstaleiro.PNG',
+SEGMENT_TEMPLATES: dict[str, str] = {
+    'corporativo': 'Corporativo.PNG',
+    'Operacoes':  'Operacoes.PNG',
+    'Servicos':  'Servicos.PNG',
+    'offshore':    'Offshore.PNG',
+    'estaleiro':   'Estaleiro.PNG',
 }
 
-POSITIONS = {
-    'name': {'x': 28, 'y': 126, 'cover': (24, 122, 285, 160)},
-    'sector': {'x': 28, 'y': 162, 'cover': (24, 158, 255, 186)},
-    'email': {'x': 28, 'y': 199, 'cover': (24, 195, 325, 223)},
-    'phone': {'x': 28, 'y': 234, 'cover': (24, 230, 210, 255)},
+TEXT_POSITIONS: dict[str, dict] = {
+    'name':   {'x': 28, 'y': 138, 'clear_area': (24, 139, 285, 162)},
+    'sector': {'x': 28, 'y': 170, 'clear_area': (24, 169, 255, 188)},
+    'email':  {'x': 28, 'y': 208, 'clear_area': (24, 207, 325, 230)},
+    'phone':  {'x': 28, 'y': 235, 'clear_area': (24, 234, 230, 256)},
 }
 
-COLORS = {
-    'name': (0, 123, 77),
-    'body': (109, 109, 109),
-}
+COLOR_NAME = (0, 123, 77)
+COLOR_BODY = (109, 109, 109)
 
 FONT_SIZE_NAME = 22
 FONT_SIZE_BODY = 16
 
+MAX_NAME_LENGTH  = 50
+MAX_EMAIL_LENGTH = 100
 
-def get_font_path():
-    bundled = os.path.join(
+
+def resolve_font_path() -> str | None:
+    bundled_font = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
-        'public',
-        'assets',
-        'LiberationSans-Regular.ttf',
+        'public', 'assets', 'LiberationSans-Regular.ttf',
     )
-    if os.path.exists(bundled):
-        return bundled
+    if os.path.exists(bundled_font):
+        return bundled_font
 
-    system = platform.system()
-    if system == 'Windows':
-        candidates = [
+    system_fonts: dict[str, list[str]] = {
+        'Windows': [
             r'C:\Windows\Fonts\l_10646.ttf',
             r'C:\Windows\Fonts\arial.ttf',
             r'C:\Windows\Fonts\calibri.ttf',
-        ]
-    elif system == 'Darwin':
-        candidates = [
+        ],
+        'Darwin': [
             '/Library/Fonts/Arial.ttf',
             '/System/Library/Fonts/Helvetica.ttc',
-        ]
-    else:
-        candidates = [
+        ],
+        'Linux': [
             '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
             '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-        ]
+        ],
+    }
 
-    for candidate in candidates:
-        if os.path.exists(candidate):
-            return candidate
-    return None
+    candidates = system_fonts.get(platform.system(), system_fonts['Linux'])
+    return next((path for path in candidates if os.path.exists(path)), None)
 
 
-def normalize_text(value):
+def normalize(value: str) -> str:
     return unicodedata.normalize('NFC', value).strip()
 
 
-def validate_input(value, max_length=50):
+def is_valid_field(value: str, max_length: int = MAX_NAME_LENGTH) -> bool:
     return isinstance(value, str) and 0 < len(value) <= max_length
 
 
-def image_to_bytes(image):
+def encode_image_as_png(image: Image.Image) -> bytes:
     buffer = io.BytesIO()
     image.save(buffer, format='PNG')
     return buffer.getvalue()
 
 
-def main():
+def load_fonts(font_path: str | None) -> tuple:
+    if font_path:
+        return (
+            ImageFont.truetype(font_path, FONT_SIZE_NAME),
+            ImageFont.truetype(font_path, FONT_SIZE_BODY),
+        )
+    fallback = ImageFont.load_default()
+    return fallback, fallback
+
+
+def render_signature(template_path: str, name: str, sector: str, email: str, phone: str) -> bytes:
+    image = Image.open(template_path).convert('RGB')
+    draw  = ImageDraw.Draw(image)
+
+    font_name, font_body = load_fonts(resolve_font_path())
+
+    for field in TEXT_POSITIONS.values():
+        draw.rectangle(field['clear_area'], fill='white')
+
+    pos = TEXT_POSITIONS
+    draw.text((pos['name']['x'],   pos['name']['y']),   name.upper(), font=font_name, fill=COLOR_NAME)
+    draw.text((pos['sector']['x'], pos['sector']['y']), sector,       font=font_body, fill=COLOR_BODY)
+    draw.text((pos['email']['x'],  pos['email']['y']),  email,        font=font_body, fill=COLOR_BODY)
+
+    if phone:
+        draw.text((pos['phone']['x'], pos['phone']['y']), phone, font=font_body, fill=COLOR_BODY)
+
+    return encode_image_as_png(image)
+
+
+def parse_args() -> tuple[str, str, str, str, str]:
     if len(sys.argv) < 6:
-        sys.stderr.write("Uso: signaturegenerator.py <segment> <name> <sector> <email> <phone>\n")
+        sys.stderr.write('Uso: signaturegenerator.py <segmento> <nome> <setor> <email> <telefone>\n')
+        sys.exit(1)
+
+    segment, name, sector, email, phone = (normalize(arg) for arg in sys.argv[1:6])
+    return segment.lower(), name, sector, email, phone
+
+
+def main() -> None:
+    segment_key, name, sector, email, phone = parse_args()
+
+    if segment_key not in SEGMENT_TEMPLATES:
+        sys.stderr.write(f'Segmento inválido: {segment_key}\n')
+        sys.exit(1)
+
+    if not is_valid_field(name) or not is_valid_field(sector) or not is_valid_field(email, MAX_EMAIL_LENGTH):
+        sys.stderr.write('Entrada inválida.\n')
+        sys.exit(1)
+
+    assets_dir    = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'assets')
+    template_path = os.path.join(assets_dir, SEGMENT_TEMPLATES[segment_key])
+
+    if not os.path.exists(template_path):
+        sys.stderr.write(f'Template não encontrado: {template_path}\n')
         sys.exit(1)
 
     try:
-        segment, name, sector, email, phone = sys.argv[1:6]
-        segment_key = normalize_text(segment).lower()
-        name = normalize_text(name)
-        sector = normalize_text(sector)
-        email = normalize_text(email)
-        phone = normalize_text(phone)
-
-        if segment_key not in SEGMENT_TEMPLATE:
-            sys.stderr.write(f"Segmento inválido: {segment}\n")
-            sys.exit(1)
-
-        if not validate_input(name) or not validate_input(sector) or not validate_input(email, 100):
-            sys.stderr.write("Erro: entrada inválida.\n")
-            sys.exit(1)
-
-        assets_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public', 'assets')
-        template_path = os.path.join(assets_dir, SEGMENT_TEMPLATE[segment_key])
-
-        if not os.path.exists(template_path):
-            sys.stderr.write(f"Template não encontrado: {template_path}\n")
-            sys.exit(1)
-
-        image = Image.open(template_path).convert('RGB')
-        draw = ImageDraw.Draw(image)
-
-        font_path = get_font_path()
-        if font_path:
-            font_name = ImageFont.truetype(font_path, FONT_SIZE_NAME)
-            font_body = ImageFont.truetype(font_path, FONT_SIZE_BODY)
-        else:
-            font_name = ImageFont.load_default()
-            font_body = ImageFont.load_default()
-
-        p = POSITIONS
-
-        draw.rectangle(p['name']['cover'], fill='white')
-        draw.rectangle(p['sector']['cover'], fill='white')
-        draw.rectangle(p['email']['cover'], fill='white')
-        draw.rectangle(p['phone']['cover'], fill='white')
-
-        draw.text((p['name']['x'], p['name']['y']), name.upper(), font=font_name, fill=COLORS['name'])
-        draw.text((p['sector']['x'], p['sector']['y']), sector, font=font_body, fill=COLORS['body'])
-        draw.text((p['email']['x'], p['email']['y']), email, font=font_body, fill=COLORS['body'])
-        if phone:
-            draw.text((p['phone']['x'], p['phone']['y']), phone, font=font_body, fill=COLORS['body'])
-
-        sys.stdout.buffer.write(image_to_bytes(image))
-
-    except Exception as exc:
-        sys.stderr.write(f"Erro ao gerar imagem: {str(exc)}\n")
+        png_bytes = render_signature(template_path, name, sector, email, phone)
+        sys.stdout.buffer.write(png_bytes)
+    except Exception as error:
+        sys.stderr.write(f'Erro ao gerar imagem: {error}\n')
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
