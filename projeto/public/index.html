@@ -140,6 +140,12 @@
     .dropdown-option:hover    { background: #f0f7f3; color: var(--color-primary); }
     .dropdown-option.selected { background: var(--color-primary); color: #fff; }
 
+    .dropdown-option-custom {
+      font-weight: 600; color: var(--color-primary);
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .dropdown-option-custom:hover { background: #f0f7f3; }
+
     /* Animacoes de transicao entre etapas */
     .slide-enter { animation: slideIn  0.35s ease forwards; }
     .slide-leave { animation: slideOut 0.25s ease forwards; }
@@ -289,6 +295,12 @@
                 </div>
                 <div class="dropdown-list" id="dropdown-list"></div>
               </div>
+              <div class="hidden" id="sector-custom-wrapper">
+                <input id="field-sector-custom" class="form-input" type="text" maxlength="30" placeholder="Digite seu cargo">
+                <button type="button" id="btn-sector-back" class="text-xs text-gray-400 hover:text-gray-600 flex items-center mt-2 transition-colors">
+                  <i class="fas fa-arrow-left mr-1"></i> Escolher da lista
+                </button>
+              </div>
               <input type="hidden" id="field-sector">
             </div>
 
@@ -314,9 +326,8 @@
 
       </div>
 
-      <div class="hidden md:flex md:w-[45%] bg-gray-50 relative overflow-hidden flex-col">
-        <img src="/assets/banner2.jpg" alt="NerdResolve" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+      <div class="hidden md:flex md:w-[45%] items-center justify-center bg-[#0e6954] overflow-hidden">
+        <img src="/assets/banner2.jpg" alt="NerdResolve" class="w-full h-full object-contain">
       </div>
 
     </div>
@@ -375,27 +386,42 @@
     const fieldSector      = document.getElementById('field-sector');
     const fieldEmail       = document.getElementById('field-email');
     const fieldPhone       = document.getElementById('field-phone');
-    const dropdownTrigger  = document.getElementById('dropdown-trigger');
-    const dropdownList     = document.getElementById('dropdown-list');
-    const sectorDropdown   = document.getElementById('sector-dropdown');
+    const dropdownTrigger     = document.getElementById('dropdown-trigger');
+    const dropdownList        = document.getElementById('dropdown-list');
+    const sectorDropdown      = document.getElementById('sector-dropdown');
+    const sectorCustomWrapper = document.getElementById('sector-custom-wrapper');
+    const fieldSectorCustom   = document.getElementById('field-sector-custom');
+    const btnSectorBack       = document.getElementById('btn-sector-back');
 
     // -- Dropdown de setor --
-    const buildSectorDropdown = () => {
+    const setDropdownTriggerText = (text) => {
+      dropdownTrigger.innerHTML = '';
+      dropdownTrigger.appendChild(document.createTextNode(text));
+
+      const arrowIcon = document.createElement('span');
+      arrowIcon.className = 'dropdown-arrow';
+      arrowIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+      dropdownTrigger.appendChild(arrowIcon);
+    };
+
+    const buildSectorDropdown = (segment) => {
       dropdownList.innerHTML = '';
 
-      for (const [groupLabel, options] of Object.entries(SECTOR_OPTIONS)) {
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'dropdown-group-label';
-        groupHeader.textContent = groupLabel;
-        dropdownList.appendChild(groupHeader);
+      const customOption = document.createElement('div');
+      customOption.className = 'dropdown-option dropdown-option-custom';
+      customOption.innerHTML = '<i class="fas fa-pen mr-2"></i>Digite seu Cargo';
+      customOption.addEventListener('click', activateCustomSectorInput);
+      dropdownList.appendChild(customOption);
 
-        for (const optionLabel of options) {
-          const optionEl = document.createElement('div');
-          optionEl.className = 'dropdown-option';
-          optionEl.textContent = optionLabel;
-          optionEl.addEventListener('click', () => selectSector(optionLabel, optionEl));
-          dropdownList.appendChild(optionEl);
-        }
+      const options = segment ? SECTOR_OPTIONS[segment.toUpperCase()] : undefined;
+      if (!options) return;
+
+      for (const optionLabel of options) {
+        const optionEl = document.createElement('div');
+        optionEl.className = 'dropdown-option';
+        optionEl.textContent = optionLabel;
+        optionEl.addEventListener('click', () => selectSector(optionLabel, optionEl));
+        dropdownList.appendChild(optionEl);
       }
     };
 
@@ -416,19 +442,39 @@
     const selectSector = (label, selectedOptionEl) => {
       fieldSector.value = label;
 
-      dropdownTrigger.textContent = label;
+      setDropdownTriggerText(label);
       dropdownTrigger.classList.remove('is-placeholder');
-
-      const arrowIcon = document.createElement('span');
-      arrowIcon.className = 'dropdown-arrow';
-      arrowIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
-      dropdownTrigger.appendChild(arrowIcon);
 
       dropdownList.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
       selectedOptionEl.classList.add('selected');
 
       closeDropdown();
     };
+
+    const activateCustomSectorInput = () => {
+      closeDropdown();
+      sectorDropdown.classList.add('hidden');
+      sectorCustomWrapper.classList.remove('hidden');
+      fieldSector.value = '';
+      fieldSectorCustom.value = '';
+      fieldSectorCustom.focus();
+    };
+
+    const deactivateCustomSectorInput = () => {
+      sectorCustomWrapper.classList.add('hidden');
+      sectorDropdown.classList.remove('hidden');
+      fieldSectorCustom.value = '';
+      fieldSector.value = '';
+      setDropdownTriggerText('Selecione seu setor');
+      dropdownTrigger.classList.add('is-placeholder');
+      dropdownList.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+    };
+
+    fieldSectorCustom.addEventListener('input', () => {
+      fieldSector.value = normalizeText(fieldSectorCustom.value);
+    });
+
+    btnSectorBack.addEventListener('click', deactivateCustomSectorInput);
 
     dropdownTrigger.addEventListener('click', toggleDropdown);
 
@@ -442,6 +488,9 @@
       clickedCard.classList.add('selected');
       selectedSegment = clickedCard.dataset.segment;
       btnNext.disabled = false;
+
+      deactivateCustomSectorInput();
+      buildSectorDropdown(selectedSegment);
     };
 
     document.querySelectorAll('.segment-card').forEach(card => {
