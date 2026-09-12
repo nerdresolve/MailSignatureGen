@@ -1,5 +1,21 @@
+# Node
 node_modules/
+npm-debug.log*
+
+# Python
 __pycache__/
-*.pyc
-projeto/_debug_*.png
-projeto/test*.png
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Saída do gerador
+*.png
+!brands/**/*.png
+!docs/**/*.png
+previa*.png
+assinatura*.png
+
+# Sistema
+.DS_Store
+Thumbs.db

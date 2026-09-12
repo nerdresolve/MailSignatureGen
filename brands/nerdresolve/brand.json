@@ -1,0 +1,68 @@
+{
+  "$schema": "../brand.schema.json",
+
+  "id": "nerdresolve",
+  "nome": "NerdResolve",
+  "site": "nerdresolve.com",
+  "dominioEmail": "nerdresolve.com",
+
+  "cores": {
+    "marca": "#7C3AED",
+    "texto": "#1E1B2E",
+    "textoSuave": "#6B7280",
+    "fundo": "#FFFFFF",
+    "linha": "#E5E7EB"
+  },
+
+  "logo": {
+    "arquivo": "logo.png",
+    "altura": 26
+  },
+
+  "assinatura": {
+    "largura": 800,
+    "altura": 260,
+    "margem": 32,
+    "faixa": "onda"
+  },
+
+  "tipografia": {
+    "nome": { "peso": "bold", "tamanho": 24, "cor": "marca", "caixaAlta": true },
+    "cargo": { "peso": "semibold", "tamanho": 15, "cor": "texto" },
+    "contato": { "peso": "regular", "tamanho": 14, "cor": "textoSuave" },
+    "slogan": { "peso": "semibold", "tamanho": 13, "cor": "marca" }
+  },
+
+  "slogan": "Tecnologia que resolve.",
+
+  "sociais": [
+    { "rede": "site", "handle": "nerdresolve.com", "url": "https://nerdresolve.com" },
+    { "rede": "instagram", "handle": "@nerdresolve", "url": "https://instagram.com/nerdresolve" },
+    { "rede": "linkedin", "handle": "/company/nerdresolve", "url": "https://linkedin.com/company/nerdresolve" }
+  ],
+
+  "perfis": [
+    {
+      "id": "padrao",
+      "nome": "NerdResolve",
+      "descricao": "Assinatura institucional"
+    }
+  ],
+
+  "cargos": [
+    "Desenvolvedor",
+    "Desenvolvedora",
+    "Designer",
+    "Analista de Suporte",
+    "Gerente de Projetos",
+    "Comercial",
+    "Financeiro",
+    "Diretor",
+    "Diretora"
+  ],
+
+  "telefone": {
+    "obrigatorio": false,
+    "formato": "+55 (##) #####-####"
+  }
+}

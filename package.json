@@ -1,17 +1,20 @@
 {
   "name": "mailsignaturegen",
-  "version": "2.0.0",
-  "description": "Gerador de assinaturas NerdResolve com selecao de segmento",
-  "main": "projeto/server.js",
+  "version": "3.0.0",
+  "description": "Gerador de assinaturas de e-mail em PNG, configurável por marca",
+  "license": "MIT",
+  "main": "app/server.js",
   "scripts": {
-    "init": "npm install && python -m pip install -r requirements.txt",
-    "start": "node projeto/server.js"
+    "start": "node app/server.js",
+    "setup": "npm install && python -m pip install -r requirements.txt",
+    "test": "python -m pytest tests/ -q",
+    "gerar": "python -m app.cli",
+    "marcas": "python -m app.cli --listar"
   },
   "dependencies": {
-    "express": "^4.22.1",
-    "multer": "^1.4.5-lts.1"
+    "express": "^4.22.1"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
 }

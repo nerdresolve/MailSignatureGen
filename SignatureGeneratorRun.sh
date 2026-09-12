@@ -1,49 +1,37 @@
 #!/usr/bin/env bash
+# Sobe o gerador: confere o que falta, instala e abre o navegador.
 set -euo pipefail
 
-echo "============================================"
-echo "   Gerador de Assinaturas NerdResolve v2.0"
-echo "============================================"
+cd "$(dirname "$0")"
+
+echo "=========================================="
+echo "   MailSignatureGen"
+echo "=========================================="
 echo
 
-# Verificar Node.js
-if ! command -v node &>/dev/null; then
-    echo "[ERRO] Node.js nao encontrado."
-    echo "Instale com: sudo apt install nodejs npm"
+for programa in node python3; do
+  if ! command -v "$programa" >/dev/null 2>&1; then
+    echo "[ERRO] $programa não encontrado."
     exit 1
-fi
+  fi
+done
 
-# Verificar Python
-if ! command -v python3 &>/dev/null; then
-    echo "[ERRO] Python 3 nao encontrado."
-    echo "Instale com: sudo apt install python3 python3-pip"
-    exit 1
-fi
-
-# Verificar pip
-if ! command -v pip3 &>/dev/null && ! python3 -m pip --version &>/dev/null; then
-    echo "[ERRO] pip nao encontrado."
-    echo "Instale com: sudo apt install python3-pip"
-    exit 1
-fi
-
-echo "[1/3] Instalando dependencias Node.js..."
+echo "[1/3] Dependências Node..."
 npm install --silent
 
-echo "[2/3] Instalando dependencias Python..."
+echo "[2/3] Dependências Python..."
 python3 -m pip install -r requirements.txt --quiet
 
-echo "[3/3] Iniciando servidor..."
+echo "[3/3] Iniciando..."
 echo
-echo "Acesse: http://localhost:3000"
-echo "Pressione Ctrl+C para encerrar o servidor."
+echo "Acesse http://localhost:3000   (Ctrl+C encerra)"
 echo
 
-# Abrir browser se disponível (ambientes desktop)
-if command -v xdg-open &>/dev/null; then
-    (sleep 2 && xdg-open http://localhost:3000) &
-elif command -v open &>/dev/null; then
-    (sleep 2 && open http://localhost:3000) &
+# Abre o navegador sem travar o servidor, se houver como.
+if command -v xdg-open >/dev/null 2>&1; then
+  (sleep 2 && xdg-open http://localhost:3000) >/dev/null 2>&1 &
+elif command -v open >/dev/null 2>&1; then
+  (sleep 2 && open http://localhost:3000) >/dev/null 2>&1 &
 fi
 
-node projeto/server.js
+exec node app/server.js

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gerador de assinaturas</title>
+<link rel="icon" href="/assets/favicon.ico">
+<style>
+  /* As cores chegam da marca, em tempo de execução. Os valores aqui são só o
+     que a página mostra enquanto /api/marca não respondeu. */
+  :root {
+    --marca: #7C3AED;
+    --texto: #1E1B2E;
+    --suave: #6B7280;
+    --linha: #E5E7EB;
+    --fundo: #FFFFFF;
+    --papel: #F6F5FA;
+    --raio: 14px;
+    --sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  @font-face {
+    font-family: "Manrope";
+    src: url("/assets/Manrope-Regular.ttf") format("truetype");
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: "Manrope";
+    src: url("/assets/Manrope-SemiBold.ttf") format("truetype");
+    font-weight: 600; font-display: swap;
+  }
+  @font-face {
+    font-family: "Manrope";
+    src: url("/assets/Manrope-Bold.ttf") format("truetype");
+    font-weight: 700; font-display: swap;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    font-family: var(--sans);
+    color: var(--texto);
+    background:
+      radial-gradient(1100px 520px at 12% -10%, color-mix(in srgb, var(--marca) 12%, transparent), transparent 60%),
+      var(--papel);
+  }
+
+  .cartao {
+    width: min(940px, 100%);
+    background: var(--fundo);
+    border: 1px solid var(--linha);
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(17, 12, 46, .07);
+    overflow: hidden;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--linha);
+  }
+  header img { height: 30px; width: auto; }
+  header p { margin: 0; font-size: 13px; color: var(--suave); }
+
+  form { padding: 26px 28px 8px; }
+
+  .grade { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; }
+  .largo { grid-column: 1 / -1; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--suave);
+    margin-bottom: 6px;
+  }
+  label span { text-transform: none; font-weight: 400; letter-spacing: 0; }
+
+  input, select {
+    width: 100%;
+    padding: 11px 13px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--texto);
+    background: var(--fundo);
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus {
+    border-color: var(--marca);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--marca) 18%, transparent);
+  }
+  input[aria-invalid="true"] { border-color: #DC2626; }
+
+  .erro-campo {
+    display: none;
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #DC2626;
+  }
+  input[aria-invalid="true"] + .erro-campo { display: block; }
+
+  .acoes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 20px 28px 26px;
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: filter .15s, transform .05s;
+  }
+  button:active { transform: translateY(1px); }
+  button[disabled] { opacity: .5; cursor: not-allowed; }
+
+  .principal { background: var(--marca); color: #fff; }
+  .principal:not([disabled]):hover { filter: brightness(1.08); }
+
+  .secundario { background: transparent; color: var(--marca); border-color: var(--linha); }
+  .secundario:not([disabled]):hover { border-color: var(--marca); }
+
+  .previa {
+    margin: 0;
+    padding: 22px 28px 28px;
+    border-top: 1px solid var(--linha);
+    background: var(--papel);
+  }
+  .previa h2 {
+    margin: 0 0 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--suave);
+  }
+  .previa img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #fff;
+    border: 1px solid var(--linha);
+    border-radius: var(--raio);
+  }
+  .previa[hidden] { display: none; }
+
+  .aviso {
+    margin: 0 28px 18px;
+    padding: 11px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+    background: #FEF2F2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+  }
+  .aviso[hidden] { display: none; }
+
+  footer {
+    padding: 16px 28px 22px;
+    font-size: 12px;
+    color: var(--suave);
+    text-align: center;
+    border-top: 1px solid var(--linha);
+  }
+  footer a { color: var(--marca); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 620px) {
+    .grade { grid-template-columns: 1fr; }
+    header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<main class="cartao">
+  <header>
+    <img id="logo" src="" alt="" hidden>
+    <p id="titulo">Gerador de assinaturas</p>
+  </header>
+
+  <p class="aviso" id="aviso" role="alert" hidden></p>
+
+  <form id="form" novalidate>
+    <div class="grade">
+      <div class="largo" id="campo-perfil" hidden>
+        <label for="perfil">Perfil</label>
+        <select id="perfil" name="perfil"></select>
+      </div>
+
+      <div class="largo">
+        <label for="nome">Nome completo</label>
+        <input id="nome" name="nome" maxlength="60" autocomplete="name" required>
+        <p class="erro-campo">Informe o nome como ele deve sair na assinatura.</p>
+      </div>
+
+      <div>
+        <label for="cargo">Cargo</label>
+        <input id="cargo" name="cargo" list="cargos" maxlength="60" required>
+        <datalist id="cargos"></datalist>
+        <p class="erro-campo">Informe o cargo.</p>
+      </div>
+
+      <div>
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" maxlength="120" autocomplete="email" required>
+        <p class="erro-campo">Informe um e-mail válido.</p>
+      </div>
+
+      <div class="largo">
+        <label for="telefone">Telefone <span id="rotulo-telefone">(opcional)</span></label>
+        <input id="telefone" name="telefone" type="tel" inputmode="tel" maxlength="24"
+               placeholder="+55 (21) 99999-9999" autocomplete="tel">
+        <p class="erro-campo">Telefone inválido.</p>
+      </div>
+    </div>
+
+    <div class="acoes">
+      <button type="submit" class="principal" id="btn-gerar">Gerar assinatura</button>
+      <button type="button" class="secundario" id="btn-baixar" disabled>Baixar PNG</button>
+    </div>
+  </form>
+
+  <section class="previa" id="previa" hidden>
+    <h2>Prévia</h2>
+    <img id="imagem" alt="Prévia da assinatura gerada">
+  </section>
+
+  <footer>
+    Gerado localmente. Nada é enviado para fora desta máquina.
+  </footer>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const form = $('form');
+  const aviso = $('aviso');
+  const previa = $('previa');
+  const imagem = $('imagem');
+  const btnGerar = $('btn-gerar');
+  const btnBaixar = $('btn-baixar');
+
+  const params = new URLSearchParams(location.search);
+  const idMarca = params.get('marca') || '';
+  let marca = null;
+  let urlAtual = null;
+
+  const mostrarAviso = (texto) => {
+    aviso.textContent = texto;
+    aviso.hidden = !texto;
+  };
+
+  /** Pinta a página com as cores da marca e preenche o que vem dela. */
+  function aplicar(dados) {
+    marca = dados;
+    document.title = `Assinaturas · ${dados.nome}`;
+    $('titulo').textContent = `Assinaturas · ${dados.nome}`;
+
+    const raiz = document.documentElement.style;
+    const cores = dados.cores || {};
+    if (cores.marca) raiz.setProperty('--marca', cores.marca);
+    if (cores.texto) raiz.setProperty('--texto', cores.texto);
+    if (cores.textoSuave) raiz.setProperty('--suave', cores.textoSuave);
+    if (cores.linha) raiz.setProperty('--linha', cores.linha);
+
+    const logo = $('logo');
+    logo.src = `/brands/${dados.id}/logo.png`;
+    logo.alt = dados.nome;
+    logo.hidden = false;
+    logo.onerror = () => { logo.hidden = true; };
+
+    $('cargos').innerHTML = (dados.cargos || [])
+      .map((c) => `<option value="${c.replace(/"/g, '&quot;')}">`).join('');
+
+    if (dados.dominioEmail) $('email').placeholder = `nome@${dados.dominioEmail}`;
+
+    if (dados.telefoneObrigatorio) {
+      $('telefone').required = true;
+      $('rotulo-telefone').textContent = '';
+    }
+
+    // O seletor de perfil só aparece quando há mais de um.
+    const perfis = dados.perfis || [];
+    if (perfis.length > 1) {
+      $('perfil').innerHTML = perfis
+        .map((p) => `<option value="${p.id}">${p.nome}${p.descricao ? ' — ' + p.descricao : ''}</option>`)
+        .join('');
+      $('campo-perfil').hidden = false;
+    }
+  }
+
+  function validarCampo(campo) {
+    const vazio = !campo.value.trim();
+    const invalido = campo.required && vazio ? true
+      : campo.type === 'email' && campo.value && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(campo.value);
+    campo.setAttribute('aria-invalid', invalido ? 'true' : 'false');
+    return !invalido;
+  }
+
+  form.addEventListener('input', (evento) => {
+    if (evento.target.matches('input')) evento.target.setAttribute('aria-invalid', 'false');
+  });
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    mostrarAviso('');
+
+    const campos = [...form.querySelectorAll('input[required], input[type=email]')];
+    if (campos.map(validarCampo).includes(false)) return;
+
+    const corpo = new URLSearchParams({
+      marca: marca?.id || idMarca,
+      perfil: $('campo-perfil').hidden ? '' : $('perfil').value,
+      nome: $('nome').value,
+      cargo: $('cargo').value,
+      email: $('email').value,
+      telefone: $('telefone').value,
+    });
+
+    btnGerar.disabled = true;
+    btnGerar.textContent = 'Gerando…';
+
+    try {
+      const resposta = await fetch('/api/assinatura', { method: 'POST', body: corpo });
+      if (!resposta.ok) throw new Error(await resposta.text());
+
+      if (urlAtual) URL.revokeObjectURL(urlAtual);
+      urlAtual = URL.createObjectURL(await resposta.blob());
+
+      imagem.src = urlAtual;
+      previa.hidden = false;
+      btnBaixar.disabled = false;
+      previa.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (erro) {
+      mostrarAviso(erro.message || 'Não foi possível gerar a assinatura.');
+    } finally {
+      btnGerar.disabled = false;
+      btnGerar.textContent = 'Gerar assinatura';
+    }
+  });
+
+  btnBaixar.addEventListener('click', () => {
+    if (!urlAtual) return;
+    const nome = $('nome').value.trim().toLowerCase().replace(/\s+/g, '-') || 'assinatura';
+    const link = document.createElement('a');
+    link.href = urlAtual;
+    link.download = `assinatura-${nome}.png`;
+    link.click();
+  });
+
+  fetch(`/api/marca${idMarca ? `?id=${encodeURIComponent(idMarca)}` : ''}`)
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('marca não encontrada'))))
+    .then(aplicar)
+    .catch(() => mostrarAviso('Não foi possível carregar a marca. Confira o brands/<id>/brand.json.'));
+})();
+</script>
+</body>
+</html>
